@@ -7,23 +7,29 @@ namespace BattleshipGame
     class Program
     {
         static int[,] board = new int[0, 0];
-        static int size;
-        static bool gameover = false;
-        static int attempts = 0;
-        static int highscore = 1000000000;
-        static int hit;
-        static bool p1W = false;
         static int[,] p1board = new int[0, 0];
-        static bool p2W = false;
         static int[,] p2board = new int[0, 0];
+
+        static bool gameover = false;
+        static bool p1W = false;
+        static bool p2W = false;
+
+        static int size;
+        static int hit;
+        static int attempts = 0;
         static int p1Attempts = 0;
         static int p2Attempts = 0;
-        static int p1Hit;
-        static int p2Hit;
+        static int highscore = 1000000000;
         static int p1Highscore = 1000000000;
         static int p2Highscore = 1000000000;
+        static int p1Hit;
+        static int p2Hit;
         static int p1Ships;
         static int p2Ships;
+        static int guessRow;
+        static int guessCol;
+        static int shipRow;
+        static int shipCol;
 
         static void Main()
         {
@@ -54,68 +60,76 @@ namespace BattleshipGame
                 Console.WriteLine("Felaktig inmatning, försök igen.");
                 Main();
             }
-        }
+        }  // Funktion för att välja speltyp
 
         static void PlaySolo()
         {
-            CreateSingleBoard();
+            CreateSingleBoard(); // Skapar spelplanen
 
-            while (!gameover)
+            while (!gameover) // Kör spelet
             {
-                ShowSingleBoard();
+                ShowSingleBoard(); // Visar spelplanen
 
                 Console.WriteLine($"\nGissa en rad (1-{size}):");
-                int guessRow = int.Parse(Console.ReadLine()!) - 1;
-                if (guessRow < 0 || guessRow > 9)
+                try
                 {
-                    Console.WriteLine("Felaktig inmatning, försök igen.");
-                    continue;
+                    guessRow = int.Parse(Console.ReadLine()!) - 1;
                 }
+                catch
+                {
+                    Console.WriteLine("Ingen rad vald");
+                    continue;
+                } // Gissar rad
+
 
                 Console.WriteLine($"Gissa en kolumn (1-{size}):");
-                int guessCol = int.Parse(Console.ReadLine()!) - 1;
-                if (guessCol < 0 || guessCol > 9)
+                try
                 {
-                    Console.WriteLine("Felaktig inmatning, försök igen.");
-                    continue;
+                    guessCol = int.Parse(Console.ReadLine()!) - 1;
                 }
+                catch
+                {
+                    Console.WriteLine("Ingen kolumn vald");
+                    continue;
+                } // Gissar kolumn
+
 
                 attempts++;
 
-                if (board[guessRow, guessCol] == 1)
+                if (board[guessRow, guessCol] == 1) // Om träff ändras värdet på skeppet till 2 för att visa att det är träff
                 {
                     Console.Clear();
                     Console.WriteLine("Träff!");
                     board[guessRow, guessCol] = 2;
-                    hit--;
+                    hit--; // Minskar antalet skepp kvar att träffa
                 }
-                else if (board[guessRow, guessCol] == 0)
+                else if (board[guessRow, guessCol] == 0) // Om miss ändras värdet på vattnet till 3 för att visa att det är miss
                 {
                     Console.Clear();
                     Console.WriteLine("Miss!");
                     board[guessRow, guessCol] = 3;
                 }
-                else if (board[guessRow, guessCol] == 2)
+                else if (board[guessRow, guessCol] == 2) // Om redan träffat här
                 {
                     Console.Clear();
                     Console.WriteLine("Redan träffat här!");
                 }
-                else if (board[guessRow, guessCol] == 3)
+                else if (board[guessRow, guessCol] == 3) // Om redan skjutit här
                 {
                     Console.Clear();
                     Console.WriteLine("Redan skjutit här!");
                 }
 
-                if (hit == 0)
+                if (hit == 0) // Om alla skepp är sänkta är spelet över
                 {
                     Console.Clear();
                     Console.WriteLine($"Du sänkte {hit} skepp på {attempts} försök.");
 
-                    highscore = Math.Min(highscore, attempts);
-
+                    highscore = Math.Min(highscore, attempts); // Jämför highscore med antalet försök och sparar det minsta
                     Console.WriteLine($"Din highscore är {highscore} försök");
+                    
                     Console.WriteLine("Vill du spela igen? (ja/nej)");
-                    string playAgain = Console.ReadLine()!;
+                    string playAgain = Console.ReadLine()!; // Frågar om spelaren vill spela igen
                     if (Command(playAgain, "Ja"))
                     {
                         Main();
@@ -128,45 +142,64 @@ namespace BattleshipGame
                     gameover = true;
                 }
             }
-        }
+        } // Spelaren splear själv
 
-        static void CreateSingleBoard() // skapar ett spelplan
+        static void CreateSingleBoard()
         {
             Console.WriteLine("Hur stor vill du att spelplanet ska vara?");
+            try
+            {
             size = int.Parse(Console.ReadLine()!);
+            }
+            catch
+            {
+                Console.Clear();
+                Console.WriteLine("Ingen storlek vald!");
+                CreateSingleBoard();
+            } // Frågar om storlek på spelplanen
             Console.Clear();
+
             if (size > 0 && size < 31)
             {
                 board = new int[size, size];
-            }
+            } // Spelplanen kan vara mellan 1-30
             else if (size > 30)
             {
                 Console.WriteLine("För stor spelplan, försök igen.");
                 CreateSingleBoard();
-            }
+            } // Om spelplanen är för stor
             else
             {
                 board = new int[10, 10];
-            }
+            } // Om ingen storlek valts
             
-            AddShips();
-        }
+            AddShips(); // Lägger till skepp
+        } // skapar spelplanen för solo
 
         static void AddShips()
         {
             Console.WriteLine("Hur många skepp vill du ha?");
+            try
+            {
             hit = int.Parse(Console.ReadLine()!);
+            }
+            catch
+            {
+                Console.Clear();
+                Console.WriteLine("Ingen antal skepp valda!");
+                AddShips();
+            } // Frågar om antal skepp som splaren vill ha
             Console.Clear();
 
             if (hit > size * size)
             {
                 Console.WriteLine("För många skepp, försök igen.");
                 AddShips();
-            }
+            } // ser till att det inte är för många skepp
 
             Random random = new Random();
-            int shipRow = 0;
-            int shipCol = 0;
+            shipRow = 0;
+            shipCol = 0;
 
             for (int i = 0; i < hit; i++)
             {
@@ -183,23 +216,25 @@ namespace BattleshipGame
                 }
 
                 board[shipRow, shipCol] = 1;
-            }
-        }
+            } // Lägger till skepp slumpmässigt
+        } // Lägger till skepp
 
         static void ShowSingleBoard()
         {
-            if (!gameover)
+            if (!gameover) // Kör spelet
             {
                 //AdminView();
 
+                // Skiriver ut vad varje tecken betyder med färg
                 Console.ForegroundColor = ConsoleColor.Blue;
-                Console.Write("\n0.Vatten ");
+                Console.Write("\nO.Vatten ");
                 Console.ForegroundColor = ConsoleColor.Green;
-                Console.Write("2.Slaget skepp ");
+                Console.Write("X.Slaget skepp ");
                 Console.ForegroundColor = ConsoleColor.Red;
-                Console.Write("3.Miss");
+                Console.Write("#.Miss");
                 Console.ForegroundColor = ConsoleColor.White;
 
+                // Skriver ut spelplanen
                 for (int i = 0; i < size; i++)
                 {
                     Console.WriteLine();
@@ -232,110 +267,74 @@ namespace BattleshipGame
                     }
                 }
             }
-        }
+        } // Visar spelplanen till spelaren
 
         static void TwoPlayer()
         {
-            CreateTwoBoards();
+            CreateTwoBoards(); // Skapar spelplanen för två spelare
 
-            while (p1W || p2W)
+            while (!p1W || !p2W)
             {
                 Console.WriteLine("Spelare 1:");
 
-                ShowP2Board();
+                ShowP2Board(); // Visar spelplanen för spelare 1
 
                 Console.WriteLine($"\nGissa en rad (1-{size}):");
-                int guessRow1 = int.Parse(Console.ReadLine()!) - 1;
-                if (guessRow1 < 0 || guessRow1 > 9)
+                try
                 {
-                    Console.WriteLine("Felaktig inmatning, försök igen.");
-                    continue;
+                    guessRow = int.Parse(Console.ReadLine()!) - 1;
                 }
+                catch
+                {
+                    Console.Clear();
+                    Console.WriteLine("Ingen rad vald!");
+                    continue;
+                } // spelare 1 gissar rad
+
 
                 Console.WriteLine($"Gissa en kolumn (1-{size}):");
-                int guessCol1 = int.Parse(Console.ReadLine()!) - 1;
-                if (guessCol1 < 0 || guessCol1 > 9)
+                try
                 {
-                    Console.WriteLine("Felaktig inmatning, försök igen.");
-                    continue;
+                    guessCol = int.Parse(Console.ReadLine()!) - 1;
                 }
+                catch
+                {
+                    Console.Clear();
+                    Console.WriteLine("Ingen kolumn vald!.");
+                    continue;
+                } // spelare 1 gissar kolumn
+
 
                 p1Attempts++;
 
-                if (p2board[guessRow1, guessCol1] == 1)
+                if (p2board[guessRow, guessCol] == 1)
                 {
                     Console.Clear();
                     Console.WriteLine("Träff!");
-                    p2board[guessRow1, guessCol1] = 2;
+                    p2board[guessRow, guessCol] = 2;
                     p1Hit--;
-                }
-                else if (p2board[guessRow1, guessCol1] == 0)
+                } // Om träff ändras värdet på skeppet till 2 för att visa att det är träff
+                else if (p2board[guessRow, guessCol] == 0)
                 {
                     Console.Clear();
                     Console.WriteLine("Miss!");
-                    p2board[guessRow1, guessCol1] = 3;
-                }
-                else if (p2board[guessRow1, guessCol1] == 2)
+                    p2board[guessRow, guessCol] = 3;
+                } // Om miss ändras värdet på vattnet till 3 för att visa att det är miss
+                else if (p2board[guessRow, guessCol] == 2)
                 {
                     Console.Clear();
                     Console.WriteLine("Redan träffat här!");
-                }
-                else if (p2board[guessRow1, guessCol1] == 3)
+                } // Om redan träffat här
+                else if (p2board[guessRow, guessCol] == 3)
                 {
                     Console.Clear();
                     Console.WriteLine("Redan skjutit här!");
-                }
-
-                Console.WriteLine("Spelare 2:");
-
-                ShowP1Board();
-
-                Console.WriteLine($"\nGissa en rad (1-{size}):");
-                int guessRow2 = int.Parse(Console.ReadLine()!) - 1;
-                if (guessRow2 < 0 || guessRow2 > 9)
-                {
-                    Console.WriteLine("Felaktig inmatning, försök igen.");
-                    continue;
-                }
-
-                Console.WriteLine($"Gissa en kolumn (1-{size}):");
-                int guessCol2 = int.Parse(Console.ReadLine()!) - 1;
-                if (guessCol2 < 0 || guessCol2 > 9)
-                {
-                    Console.WriteLine("Felaktig inmatning, försök igen.");
-                    continue;
-                }
+                } // Om redan skjutit här
                 
-                p2Attempts++;
-
-                if (p1board[guessRow2, guessCol2] == 1)
-                {
-                    Console.Clear();
-                    Console.WriteLine("Träff!");
-                    p1board[guessRow2, guessCol2] = 2;
-                    p2Hit--;
-                }
-                else if (p1board[guessRow2, guessCol2] == 0)
-                {
-                    Console.Clear();
-                    Console.WriteLine("Miss!");
-                    p1board[guessRow2, guessCol2] = 3;
-                }
-                else if (p1board[guessRow2, guessCol2] == 2)
-                {
-                    Console.Clear();
-                    Console.WriteLine("Redan träffat här!");
-                }
-                else if (p1board[guessRow2, guessCol2] == 3)
-                {
-                    Console.Clear();
-                    Console.WriteLine("Redan skjutit här!");
-                }
-
                 if (p1Hit == 0)
                 {
                     Console.Clear();
-                    Console.WriteLine($"Spelare 1 sänkte {p1Hit} skepp på {p1Attempts} försök.");
+                    Console.WriteLine($"Spelare 1 sänkte {p1Ships} skepp på {p1Attempts} försök.");
 
                     p1Highscore = Math.Min(p1Highscore, p1Attempts);
 
@@ -349,10 +348,68 @@ namespace BattleshipGame
                     else
                     {
                         Console.ReadLine();
-                    }
+                }
 
                     p1W = true;
+                } // Om spelare 1 vinner
+
+                Console.WriteLine("Spelare 2:");
+
+                ShowP1Board(); // Visar spelplanen för spelare 2
+
+                Console.WriteLine($"\nGissa en rad (1-{size}):");
+                try
+                {
+                     guessRow = int.Parse(Console.ReadLine()!) - 1;
                 }
+                catch
+                {
+                    Console.Clear();
+                    Console.WriteLine("Ingen rad vald!");
+                    continue;
+                } // spelare 2 gissar rad
+
+
+
+                Console.WriteLine($"Gissa en kolumn (1-{size}):");
+                try
+                {
+                     guessCol = int.Parse(Console.ReadLine()!) - 1;
+                }
+                catch
+                {
+                    Console.Clear();
+                    Console.WriteLine("Ingen kolumn vald!");
+                    continue;
+                } // spelare 2 gissar kolumn
+                
+
+                p2Attempts++;
+
+                if (p1board[guessRow, guessCol] == 1)
+                {
+                    Console.Clear();
+                    Console.WriteLine("Träff!");
+                    p1board[guessRow, guessCol] = 2;
+                    p2Hit--;
+                } // Om träff ändras värdet på skeppet till 2 för att visa att det är träff
+                else if (p1board[guessRow, guessCol] == 0)
+                {
+                    Console.Clear();
+                    Console.WriteLine("Miss!");
+                    p1board[guessRow, guessCol] = 3;
+                } // Om miss ändras värdet på vattnet till 3 för att visa att det är miss
+                else if (p1board[guessRow, guessCol] == 2)
+                {
+                    Console.Clear();
+                    Console.WriteLine("Redan träffat här!");
+                } // Om redan träffat här
+                else if (p1board[guessRow, guessCol] == 3)
+                {
+                    Console.Clear();
+                    Console.WriteLine("Redan skjutit här!");
+                } // Om redan skjutit här
+
                 if (p2Hit == 0)
                 {
                     Console.Clear();
@@ -373,14 +430,24 @@ namespace BattleshipGame
                     }
 
                     p2W = true;
+                } // Om spelare 2 vinner
                 }                
-            }
-        }
+        } // Två spelare spelar mot varandra
 
         static void CreateTwoBoards()
         {
             Console.WriteLine("Hur stor vill du att spelplanet ska vara?");
+            try
+            {
             size = int.Parse(Console.ReadLine()!);
+            }
+            catch
+            {
+                Console.Clear();
+                Console.WriteLine("Ingen storlek vald!");
+                CreateTwoBoards();
+            }
+            
             Console.Clear();
 
             if (size > 0 && size < 31)
@@ -390,6 +457,7 @@ namespace BattleshipGame
             }
             else if (size > 30)
             {
+                Console.Clear();
                 Console.WriteLine("För stor spelplan, försök igen.");
                 CreateTwoBoards();
             }
@@ -400,12 +468,21 @@ namespace BattleshipGame
             }
 
             AddTwoShips();
-        }
+        } // Done
 
         static void AddTwoShips()
         {
             Console.WriteLine("Hur många skepp vill ni ha?");
+            try
+            {
             hit = int.Parse(Console.ReadLine()!);
+            }
+            catch
+            {
+                Console.Clear();
+                Console.WriteLine("Ingen antal skepp valda!");
+                AddTwoShips();
+            }
 
             p1Hit = hit;
             p2Hit = hit;
@@ -414,6 +491,7 @@ namespace BattleshipGame
 
             if (hit > size * size)
             {
+                Console.Clear();
                 Console.WriteLine("För många skepp, försök igen.");
                 AddTwoShips();
             }
@@ -431,13 +509,13 @@ namespace BattleshipGame
                 P1Ships();
                 P2Ships();
             }
-        }
+        } // Done
 
         static void RandomShips()
         {
             Random random = new Random();
-            int shipRow = 0;
-            int shipCol = 0;
+            shipRow = 0;
+            shipCol = 0;
 
             for (int i = 0; i < hit; i++)
             {
@@ -452,69 +530,99 @@ namespace BattleshipGame
                 shipCol = random.Next(0, size);
                 p2board[shipRow, shipCol] = 1;
             }
-        }
+        } // Done
         static void P1Ships()
         {
-            for (int i = 0; i < p1Ships; i++)
+            int a = p1Ships;
+            while (a > 0)
             {
-                Console.WriteLine("Spelare 1, var vill du placera ditt skepp?");
-
-                Console.WriteLine("Välj en rad (1-10):");
-                int shipRow = int.Parse(Console.ReadLine()!) - 1;
-                if (shipRow > size)
+                Console.WriteLine("Spelare 1, placera ditt skepp:");
+                Console.WriteLine($"Välj en rad (1-{size}):");
+                try
                 {
-                    Console.WriteLine("Spelplanet är för liten!");
-                    P1Ships();
+                shipRow = int.Parse(Console.ReadLine()!) - 1;
+                }
+                catch
+                {
+                    Console.Clear();
+                    Console.WriteLine("Ingen rad vald!");
+                    continue;
                 }
 
-                Console.WriteLine("Välj en kolumn (1-10):");
-                int shipCol = int.Parse(Console.ReadLine()!) - 1;
-                if (shipCol > size)
+                Console.WriteLine($"Välj en kolumn (1-{size}):");
+                try
                 {
-                    Console.WriteLine("Spelplanet är för liten!");
-                    P1Ships();
+                shipCol = int.Parse(Console.ReadLine()!) - 1;
+                }
+                catch
+                {
+                    Console.Clear();
+                    Console.WriteLine("Ingen kolumn vald!");
+                    continue;
                 }
 
+                if (p1board[shipRow, shipCol] == 1)
+                {
+                    Console.WriteLine("Redan ett skepp här, försök igen.");
+                    continue;
+                }
+                else
+                {
                 p1board[shipRow, shipCol] = 1;
-                p1Ships--;
+                    a--;
+                }
                 Console.Clear();
             }
-        }
+        } // Done
         static void P2Ships()
         {
-            for (int i = 0;i < p2Ships; i++)
+            int a = p2Ships;
+            while (a > 0)
             {
-                Console.WriteLine("Spelare 2, var vill du placera ditt skepp?");
-
-                Console.WriteLine("Välj en rad (1-10):");
-                int shipRow = int.Parse(Console.ReadLine()!) - 1;
-                if (shipRow > size)
+                Console.WriteLine("Spelare 2, placera ditt skepp:");
+                Console.WriteLine($"Välj en rad (1-{size}):");
+                try
                 {
-                    Console.WriteLine("Spelplanet är för liten!");
-                    P2Ships();
+                shipRow = int.Parse(Console.ReadLine()!) - 1;
+                }
+                catch
+                {
+                    Console.Clear();
+                    Console.WriteLine("Ingen rad vald!");
+                    continue;
                 }
 
-                Console.WriteLine("Välj en kolumn (1-10):");
-                int shipCol = int.Parse(Console.ReadLine()!) - 1;
-                if (shipCol > size)
+                Console.WriteLine($"Välj en kolumn (1-{size}):");
+                try
                 {
-                    Console.WriteLine("Spelplanet är för liten!");
-                    P2Ships();
+                shipCol = int.Parse(Console.ReadLine()!) - 1;
+                }
+                catch
+                {
+                    Console.Clear();
+                    Console.WriteLine("Ingen kolumn vald!");
+                    continue;
                 }
 
+                if (p2board[shipRow, shipCol] == 1)
+                {
+                    Console.WriteLine("Redan ett skepp här, försök igen.");
+                    continue;
+                }
+                else
+                {
                 p2board[shipRow, shipCol] = 1;
-                p2Ships--;
+                    a--;
+                }
                 Console.Clear();
             }
-        }
+        } // Done
 
         static void ShowP1Board()
         {
             if (!gameover)
             {
                 //AdminP1View();
-
-                Console.WriteLine("");
 
                 Console.ForegroundColor = ConsoleColor.Blue;
                 Console.Write("\n0.Vatten ");
@@ -556,14 +664,12 @@ namespace BattleshipGame
                     }
                 }
             }
-        }
+        } // Done
         static void ShowP2Board()
         {
             if (!gameover)
             {
                 //AdminP2View();
-
-                Console.WriteLine("");
 
                 Console.ForegroundColor = ConsoleColor.Blue;
                 Console.Write("\n0.Vatten ");
@@ -605,7 +711,7 @@ namespace BattleshipGame
                     }
                 }
             }
-        }
+        }  // Done
 
         static void AdminView()
         {
@@ -618,7 +724,7 @@ namespace BattleshipGame
                 }
             }
             Console.WriteLine("");
-        }
+        } // Visar spelplanen så man kan se skeppen
         static void AdminP1View()
         {
             for (int i = 0; i < size; i++)
@@ -630,7 +736,7 @@ namespace BattleshipGame
                 }
             }
             Console.WriteLine("");
-        }
+        }   // Visar spelplanen så man kan se spelare 1´s skepp
         static void AdminP2View()
         {
             for (int i = 0; i < size; i++)
@@ -642,7 +748,7 @@ namespace BattleshipGame
                 }
             }
             Console.WriteLine("");
-        }
+        }      // Visar spelplanen så man kan se spelare 2´s skepp
 
         static bool Command(string s, string c)
         {
@@ -656,6 +762,6 @@ namespace BattleshipGame
                 valid = false;
             }
             return valid;
-        }
+        } // Kollar om inmatningen är rätt
     }
 }
