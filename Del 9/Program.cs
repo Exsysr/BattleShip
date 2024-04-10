@@ -6,6 +6,7 @@ namespace BattleshipGame
 {
     class Program
     {
+        // Variabler
         static int[,] board = new int[0, 0];
         static int[,] p1board = new int[0, 0];
         static int[,] p2board = new int[0, 0];
@@ -122,8 +123,9 @@ namespace BattleshipGame
 
                 if (hit == 0) // Om alla skepp är sänkta är spelet över
                 {
+                    int skepp = hit;
                     Console.Clear();
-                    Console.WriteLine($"Du sänkte {hit} skepp på {attempts} försök.");
+                    Console.WriteLine($"Du sänkte {skepp} skepp på {attempts} försök.");
 
                     highscore = Math.Min(highscore, attempts); // Jämför highscore med antalet försök och sparar det minsta
                     Console.WriteLine($"Din highscore är {highscore} försök");
@@ -280,6 +282,7 @@ namespace BattleshipGame
                 ShowP2Board(); // Visar spelplanen för spelare 1
 
                 Console.WriteLine($"\nGissa en rad (1-{size}):");
+
                 try
                 {
                     guessRow = int.Parse(Console.ReadLine()!) - 1;
@@ -413,7 +416,7 @@ namespace BattleshipGame
                 if (p2Hit == 0)
                 {
                     Console.Clear();
-                    Console.WriteLine($"Spelare 2 sänkte {p2Hit} skepp på {p2Attempts} försök.");
+                    Console.WriteLine($"Spelare 2 sänkte {p2Ships} skepp på {p2Attempts} försök.");
 
                     p2Highscore = Math.Min(p2Highscore, p2Attempts);
 
@@ -436,6 +439,7 @@ namespace BattleshipGame
 
         static void CreateTwoBoards()
         {
+            // Väljer storlek på spelplanen
             Console.WriteLine("Hur stor vill du att spelplanet ska vara?");
             try
             {
@@ -450,6 +454,7 @@ namespace BattleshipGame
             
             Console.Clear();
 
+            // skapar spelplanen
             if (size > 0 && size < 31)
             {
                 p1board = new int[size, size];
@@ -467,11 +472,12 @@ namespace BattleshipGame
                 p2board = new int[10, 10];
             }
 
-            AddTwoShips();
-        } // Done
+            AddTwoShips(); // lägger till skepp
+        } // Skapar ett spelplan för två spelare
 
         static void AddTwoShips()
         {
+            // väljer antal skepp
             Console.WriteLine("Hur många skepp vill ni ha?");
             try
             {
@@ -484,6 +490,7 @@ namespace BattleshipGame
                 AddTwoShips();
             }
 
+
             p1Hit = hit;
             p2Hit = hit;
             p1Ships = hit;
@@ -495,11 +502,12 @@ namespace BattleshipGame
                 Console.WriteLine("För många skepp, försök igen.");
                 AddTwoShips();
             }
-
+            // väjer om skeppen ska placeras slumpmässigt eller inte
             Console.WriteLine("Placera skeppen slupmässigt? (ja/nej)");
             string random = Console.ReadLine()!;
             Console.Clear();
 
+            // Placerar skeppen
             if (Command(random, "JA"))
             {
                 RandomShips();
@@ -509,7 +517,7 @@ namespace BattleshipGame
                 P1Ships();
                 P2Ships();
             }
-        } // Done
+        } // Lägger till skepp för två spelare
 
         static void RandomShips()
         {
@@ -530,7 +538,7 @@ namespace BattleshipGame
                 shipCol = random.Next(0, size);
                 p2board[shipRow, shipCol] = 1;
             }
-        } // Done
+        } // Lägger till skepp slumpmässigt för 2 spelare
         static void P1Ships()
         {
             int a = p1Ships;
@@ -573,7 +581,7 @@ namespace BattleshipGame
                 }
                 Console.Clear();
             }
-        } // Done
+        } // Spelare 1 lägger till skepp
         static void P2Ships()
         {
             int a = p2Ships;
@@ -616,7 +624,7 @@ namespace BattleshipGame
                 }
                 Console.Clear();
             }
-        } // Done
+        } // Spelare 2 lägger till skepp
 
         static void ShowP1Board()
         {
@@ -664,7 +672,7 @@ namespace BattleshipGame
                     }
                 }
             }
-        } // Done
+        } // Visar spelplan 1
         static void ShowP2Board()
         {
             if (!gameover)
@@ -711,7 +719,7 @@ namespace BattleshipGame
                     }
                 }
             }
-        }  // Done
+        }  // Visar spelplan 2
 
         static void AdminView()
         {
